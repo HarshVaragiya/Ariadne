@@ -1,0 +1,66 @@
+--- libgobuster.go	2020-07-04 00:39:52.120918598 +0530
++++ libgobuster_patched.go	2020-07-04 00:41:08.176922327 +0530
+@@ -24,9 +24,9 @@
+ type Gobuster struct {
+ 	Opts             *Options
+ 	context          context.Context
+-	requestsExpected int
+-	requestsIssued   int
+-	mu               *sync.RWMutex
++	RequestsExpected int
++	RequestsIssued   int
++	Mu               *sync.RWMutex
+ 	plugin           GobusterPlugin
+ 	resultChan       chan Result
+ 	errorChan        chan error
+@@ -39,7 +39,7 @@
+ 	var g Gobuster
+ 	g.Opts = opts
+ 	g.plugin = plugin
+-	g.mu = new(sync.RWMutex)
++	g.Mu = new(sync.RWMutex)
+ 	g.context = c
+ 	g.resultChan = make(chan Result)
+ 	g.errorChan = make(chan error)
+@@ -60,22 +60,22 @@
+ }
+ 
+ func (g *Gobuster) incrementRequests() {
+-	g.mu.Lock()
+-	g.requestsIssued++
+-	g.mu.Unlock()
++	g.Mu.Lock()
++	g.RequestsIssued++
++	g.Mu.Unlock()
+ }
+ 
+ // PrintProgress outputs the current wordlist progress to stderr
+ func (g *Gobuster) PrintProgress() {
+ 	if !g.Opts.Quiet && !g.Opts.NoProgress {
+-		g.mu.RLock()
++		g.Mu.RLock()
+ 		if g.Opts.Wordlist == "-" {
+-			fmt.Fprintf(os.Stderr, "\rProgress: %d", g.requestsIssued)
++			fmt.Fprintf(os.Stderr, "\rProgress: %d", g.RequestsIssued)
+ 			// only print status if we already read in the wordlist
+-		} else if g.requestsExpected > 0 {
+-			fmt.Fprintf(os.Stderr, "\rProgress: %d / %d (%3.2f%%)", g.requestsIssued, g.requestsExpected, float32(g.requestsIssued)*100.0/float32(g.requestsExpected))
++		} else if g.RequestsExpected > 0 {
++			fmt.Fprintf(os.Stderr, "\rProgress: %d / %d (%3.2f%%)", g.RequestsIssued, g.RequestsExpected, float32(g.RequestsIssued)*100.0/float32(g.RequestsExpected))
+ 		}
+-		g.mu.RUnlock()
++		g.Mu.RUnlock()
+ 	}
+ }
+ 
+@@ -139,8 +139,8 @@
+ 		return nil, fmt.Errorf("failed to get number of lines: %v", err)
+ 	}
+ 
+-	g.requestsExpected = lines
+-	g.requestsIssued = 0
++	g.RequestsExpected = lines
++	g.RequestsIssued = 0
+ 
+ 	// rewind wordlist
+ 	_, err = wordlist.Seek(0, 0)
