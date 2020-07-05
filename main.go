@@ -1,18 +1,21 @@
 package main
 
 import (
-	"Ariadne/Core"
 	"Ariadne/ElasticLog"
+	"Ariadne/Nmap"
 	"fmt"
+	"sync"
 )
 
 func main(){
 	logger := &ElasticLog.Logger{}
-	logger.Init("self")
-	
-	log := ElasticLog.NewLog("DEBUG","Starting Ariadne","root")
-	logger.SendLog(log)
+	logger.Init("nmap")
 
-	Core.TestFTP(logger)
-	fmt.Println("Exiting")
+	var wg sync.WaitGroup
+	scanner := Nmap.NewPortScanner("192.168.1.1",&wg,logger)
+	scanner.DefaultScan()
+	fmt.Println("Waiting for scans to finish")
+	wg.Wait()
+	fmt.Println(scanner.PortsFoundLog)
+	fmt.Println("Exiting!")
 }
