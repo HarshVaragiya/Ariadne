@@ -13,8 +13,8 @@ func main(){
 
 	var wg sync.WaitGroup
 
-	wordlist := "/home/harsh/Desktop/HackTheBox/Wordlist/small.txt"
-	scanner := HTTP.NewBasicGoBusterDir("http://127.0.0.1:8000/","php,html,txt",wordlist,50,&wg,logger)
+	wordlist := "/home/harsh/Desktop/HackTheBox/Wordlist/directory-list-2.3-small.txt"
+	scanner := HTTP.NewBasicGoBusterDir("http://192.168.1.1:80/","php,html,txt",wordlist,80,&wg,logger)
 	report := scanner.Start()
 	fmt.Println("Waiting for scans to finish")
 	wg.Wait()

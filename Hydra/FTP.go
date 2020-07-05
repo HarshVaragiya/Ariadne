@@ -112,7 +112,7 @@ func (ftpCrack *FTP) CheckFTPCredential (target,username,password string) bool {
 		err = conn.Login(username, password)
 		if err == nil {
 			ftpCrack.logger.SendLog(NewCredential(username,password,true,6,ftpCrack.ModuleName,target))
-			fmt.Printf("[+] [%s] Possible Valid Credentials for %s => %s : %s \n",ftpCrack.ModuleName,target,username,password)
+			fmt.Printf("[%s] Possible Valid Credentials for %s => %s : %s \n",ftpCrack.ModuleName,target,username,password)
 			return true
 		} else if strings.Contains(err.Error(),"530") {
 			ftpCrack.logger.SendLog(NewCredential(username,password,false,0,ftpCrack.ModuleName,target))

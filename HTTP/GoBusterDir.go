@@ -100,6 +100,7 @@ func(dirbuster *GobusterDir) updateEntities(){
 
 				dirbuster.logger.SendLog(dirbuster.ReportOutput)
 				dirbuster.logger.SendLog(ElasticLog.NewLog("IMP","Endpoint found : "+dirbuster.targetBaseURL+r.Entity,dirbuster.ModuleName))
+				fmt.Printf("[%s] Endpoint found : %s%s  [StatusCode %d] \n",dirbuster.ModuleName,dirbuster.targetBaseURL,r.Entity,r.StatusCode)
 				// log output to elasticsearch
 			}
 		}

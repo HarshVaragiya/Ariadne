@@ -31,7 +31,7 @@ func (portScan *PortScan) InitialQuickPortScan(){
 		}
 		for _, port := range host.Ports {
 			if port.State.State == "open"{
-				str := fmt.Sprintf("Found OPEN Port %d running service %s",port.ID,port.Service.String())
+				str := fmt.Sprintf("[%s] Found OPEN Port %d running service %s",portScan.ModuleName,port.ID,port.Service.String())
 				portScan.logger.SendLog(ElasticLog.NewLog("DEBUG",str,portScan.ModuleName)) // one logs to debug , other to IMP
 				fmt.Println(str)
 				portScan.InitialScanPorts[port.Service.String()] = append(portScan.InitialScanPorts[port.Service.String()],port.ID)
