@@ -30,9 +30,9 @@ func NewLog(Type,Text,Module string)Log{
 		priority = 1
 	case "INFO":
 		priority = 2
-	case "ERROR":
-		priority = 3
 	case "WARN":
+		priority = 3
+	case "ERROR":
 		priority = 4
 	case "IMP":
 		priority = 5
