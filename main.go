@@ -4,7 +4,6 @@ import (
 	"Ariadne/Core"
 	"Ariadne/ElasticLog"
 	"fmt"
-	"sync"
 )
 
 func main(){
@@ -14,9 +13,6 @@ func main(){
 	log := ElasticLog.NewLog("DEBUG","Starting Ariadne","root")
 	logger.SendLog(log)
 
-	var wg sync.WaitGroup
-	Core.TestFTP(logger,&wg)
-	fmt.Println("Waiting for threads to exit")
-	wg.Wait()
+	Core.TestFTP(logger)
 	fmt.Println("Exiting")
 }
