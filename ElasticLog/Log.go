@@ -13,12 +13,12 @@ type Log struct {
 }
 
 type Progress struct {
-	Type      string
-	Target	  string
-	Done      int
-	Remaining int
-	Module 	  string
-	Priority  int
+	Type     string
+	Target   string
+	Done     int
+	Total    int
+	Module   string
+	Priority int
 }
 
 func NewLog(Type,Text,Module string)Log{

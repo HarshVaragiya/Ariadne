@@ -7,12 +7,14 @@ import (
 	"sync"
 )
 
-func TestFTP(logger *ElasticLog.Logger,parentWaitGroup *sync.WaitGroup){
-	ftpTarget := fmt.Sprintf("%s:%d","192.168.1.1",21)
-	kill := false
-	defaultCredChecker := Hydra.FTPDefaultCredentialCheck(ftpTarget,"/home/harsh/Desktop/HackTheBox/Wordlist/ftp-betterdefaultpasslist.txt",logger,&kill,parentWaitGroup)
+func TestFTP(logger *ElasticLog.Logger){
+	var myWaitGroup sync.WaitGroup
+	ftpTarget := fmt.Sprintf("%s:%d","127.0.0.1",21)
+	threads := 2
+	defaultCredChecker := Hydra.FTPDefaultCredentialCheck(ftpTarget,
+		"/home/harsh/Desktop/HackTheBox/Wordlist/ftp-betterdefaultpasslist.txt",threads,logger,&myWaitGroup)
 	fmt.Println("Starting ...")
 	defaultCredChecker.StartCracking()
 	fmt.Println("Waiting for threads to end ...")
-	parentWaitGroup.Wait()
+	myWaitGroup.Wait()
 }
