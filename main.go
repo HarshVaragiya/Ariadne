@@ -1,23 +1,25 @@
 package main
 
 import (
-	"Ariadne/ElasticLog"
-	"Ariadne/HTTP"
+	"Ariadne/CredManager"
 	"fmt"
-	"sync"
+	"time"
 )
 
 func main(){
-	logger := &ElasticLog.Logger{}
-	logger.Init("gobuster")
+	tracker := CredManager.NewCredFileTracker("/home/harsh/Desktop/HackTheBox/test/credentials.txt")
+	go tracker.Track()
 
-	var wg sync.WaitGroup
+	go func(){
+		time.Sleep(time.Second*60)
+		tracker.KillTracker()
+	}()
 
-	wordlist := "/home/harsh/Desktop/HackTheBox/Wordlist/directory-list-2.3-small.txt"
-	scanner := HTTP.NewBasicGoBusterDir("http://192.168.1.1:80/","php,html,txt",wordlist,80,&wg,logger)
-	report := scanner.Start()
-	fmt.Println("Waiting for scans to finish")
-	wg.Wait()
-	fmt.Println(report)
-	fmt.Println("Exiting!")
+	c := tracker.GetTrackerCredChannel()
+
+	for cred := range c{
+		fmt.Println(cred)
+	}
+
+
 }
