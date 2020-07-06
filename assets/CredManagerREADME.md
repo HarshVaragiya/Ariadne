@@ -14,6 +14,7 @@ Log Definition can be found at [CredManager/CredentialStructures.go](../CredMana
 
 ## CredTracker
 Provides a dynamic credential channel depending on a tracking file
+
 ![GIF](Images/CredTrackerInAction.gif)
 
 ## Credential Manager
