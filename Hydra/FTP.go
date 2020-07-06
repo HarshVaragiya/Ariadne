@@ -1,6 +1,7 @@
 package Hydra
 
 import (
+	"Ariadne/CredManager"
 	"Ariadne/ElasticLog"
 	"fmt"
 	"github.com/jlaffaye/ftp"
@@ -14,7 +15,7 @@ type FTP struct {
 	done   int       // done and total creds to be tested
 	total  int
 
-	CredList CredList
+	CredList CredManager.CredList
 
 	findOneOnly bool
 	foundCred bool
@@ -27,11 +28,11 @@ type FTP struct {
 	parentWaitGroup *sync.WaitGroup
 	lock 			 sync.Mutex
 
-	credentials chan Cred
+	credentials chan CredManager.Cred
 }
 
 func FTPDefaultCredentialCheck(target,filename string,threads int,logger *ElasticLog.Logger,parentWaitGroup *sync.WaitGroup)FTP{
-	newDefaultCredList := CredList{}
+	newDefaultCredList := CredManager.CredList{}
 	err := newDefaultCredList.SetCredFile(filename)
 	newDefaultCredList.SetCrossConnectStrategy(false)
 	if err!=nil {
@@ -67,7 +68,7 @@ func (ftpCrack *FTP) KillCrackingSession(){
 	close(ftpCrack.credentials)   // to kill all threads
 }
 
-func (ftpCrack *FTP)CheckCredentials(credentials chan Cred,group *sync.WaitGroup){
+func (ftpCrack *FTP)CheckCredentials(credentials chan CredManager.Cred,group *sync.WaitGroup){
 	defer group.Done()
 	for credential := range credentials {
 		if !ftpCrack.kill {
@@ -111,11 +112,11 @@ func (ftpCrack *FTP) CheckFTPCredential (target,username,password string) bool {
 		}
 		err = conn.Login(username, password)
 		if err == nil {
-			ftpCrack.logger.SendLog(NewCredential(username,password,true,6,ftpCrack.ModuleName,target))
+			ftpCrack.logger.SendLog(CredManager.NewCredentialLog(username,password,true,6,ftpCrack.ModuleName,target))
 			fmt.Printf("[%s] Possible Valid Credentials for %s => %s : %s \n",ftpCrack.ModuleName,target,username,password)
 			return true
 		} else if strings.Contains(err.Error(),"530") {
-			ftpCrack.logger.SendLog(NewCredential(username,password,false,0,ftpCrack.ModuleName,target))
+			ftpCrack.logger.SendLog(CredManager.NewCredentialLog(username,password,false,0,ftpCrack.ModuleName,target))
 			time.Sleep(time.Second*4)
 			return false
 		}

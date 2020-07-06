@@ -1,12 +1,7 @@
-package Hydra
+package CredManager
 
-import (
-	"bufio"
-	"fmt"
-	"os"
-	"strings"
-)
 
+// List of credentials for testing for all submodules of Hydra or any other Modules
 type CredList struct {
 	usernames []string
 	passwords []string
@@ -25,7 +20,7 @@ func (credList *CredList) SetCrossConnectStrategy(crossConnect bool){
 	credList.crossConnect = crossConnect
 }
 
-func (credList *CredList) GetCredentialChannel() chan Cred{
+func (credList *CredList) GetCredentialChannel() chan Cred {
 	if credList.crossConnect {
 		credList.crossConnectCreds()
 	} else {
@@ -52,20 +47,10 @@ func (credList *CredList) linearConnectCreds() {
 	}
 }
 
-func (credList *CredList) SetCredFile(filename string)error{
-	file, err := os.Open(filename)
-	if err != nil {
-		return err
+func (credList *CredList) SetCredFile(filename string){
+	var err error
+	credList.usernames , credList.passwords , err = GetCredentialsFromFile(filename)
+	if err!=nil{
+		panic(err)
 	}
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanWords)
-	for scanner.Scan() {
-		line := scanner.Text()
-		credList.usernames = append(credList.usernames, strings.Split(line,":")[0])
-		credList.passwords = append(credList.passwords, strings.SplitAfter(line,":")[1])
-	}
-	fmt.Println("Generated Credlist")
-	return nil
 }
-
