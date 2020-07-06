@@ -47,10 +47,8 @@ func (credList *CredList) linearConnectCreds() {
 	}
 }
 
-func (credList *CredList) SetCredFile(filename string){
+func (credList *CredList) SetCredFile(filename string)error{
 	var err error
 	credList.usernames , credList.passwords , err = GetCredentialsFromFile(filename)
-	if err!=nil{
-		panic(err)
-	}
+	return err
 }
