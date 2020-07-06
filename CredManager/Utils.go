@@ -16,21 +16,43 @@ func GetCredentialsFromFile(filename string)(usernames,passwords []string,err er
 	scanner.Split(bufio.ScanWords)
 	for scanner.Scan() {
 		line := scanner.Text()
-		usernames = append(usernames, strings.Split(line,":")[0])
-		passwords = append(passwords, strings.SplitAfter(line,":")[1])
+		username := strings.TrimSpace(strings.Split(line,":")[0])
+		password := strings.TrimSpace(strings.SplitAfter(line,":")[1])
+		if username != "" {
+			usernames = append(usernames, username)
+		}
+		if password != "" {
+			passwords = append(passwords, password)
+		}
 	}
 	// fmt.Println("Generated Credlist")
 	return usernames,passwords,nil
 }
 
-func Contains(set []string,value string)bool{
+func Contains(set []string,value string)int{
 	if set == nil {
-		return false
+		return -1
 	}
-	for _ , v := range set{
+	for index , v := range set{
 		if value == v {
-			return true
+			return index
 		}
 	}
-	return false
+	return -1
+}
+
+func ensureFileExistence(filename string){
+	outFile, err := os.Open(filename)
+	if err !=nil {
+		if strings.Contains(err.Error(), "no such file or directory") {
+			file , err := os.Create(filename)
+			if err != nil {
+				panic(err)
+			}
+			file.Close()
+			return
+		}
+		panic(err)
+	}
+	outFile.Close()
 }
