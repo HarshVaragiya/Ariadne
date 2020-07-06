@@ -1,6 +1,10 @@
 package CredManager
 
-import "time"
+import (
+	"fmt"
+	"os"
+	"time"
+)
 
 // tracks a file of credentials where each line is of type
 // username1:password1
@@ -9,7 +13,6 @@ import "time"
 // automatically checks cross credential usage
 type CredFileTracker struct {
 	trackedFile string
-	checkedLines []string
 	checkedUsernames []string
 	checkedPasswords []string
 
@@ -22,14 +25,12 @@ func NewCredFileTracker(filename string)*CredFileTracker{
 	ensureFileExistence(filename)
 	tracker := &CredFileTracker{
 		trackedFile: filename,
-		checkedLines:     nil,
 		checkedUsernames: nil,
 		checkedPasswords: nil,
 		possibleCredentials: make(chan Cred,100),
 		isAlive: true,
 		sleepDuration: time.Second*5,
 	}
-	tracker.Track()
 	return tracker
 }
 
@@ -37,15 +38,15 @@ func (tracker *CredFileTracker) Track() {
 	for ;tracker.isAlive; {
 		usernameQueue, passwordQueue, err := GetCredentialsFromFile(tracker.trackedFile)
 		if err != nil {
-			panic(err)
+			_, _ = fmt.Fprintln(os.Stderr, err)
+			continue
+			// panic(err)
 		}
 		filteredUsernames, filteredPasswords, foundNew := tracker.filterAllCreds(usernameQueue, passwordQueue)
 		if !foundNew {
-			continue
+			time.Sleep(tracker.sleepDuration)
 		}
 		tracker.processNewCreds(filteredUsernames, filteredPasswords)
-
-		time.Sleep(tracker.sleepDuration)
 	}
 }
 
@@ -68,6 +69,8 @@ func (tracker *CredFileTracker) processNewCreds (usernames,passwords []string){
 			tracker.possibleCredentials <- Cred{username,passphrase}
 		}
 	}
+	tracker.checkedUsernames = append(tracker.checkedUsernames,usernames...)
+	tracker.checkedPasswords = append(tracker.checkedPasswords,passwords...)
 }
 
 func (tracker *CredFileTracker) filterAllCreds (usernames,passwords []string)(filteredUsernames,filteredPasswords []string,foundNew bool){
