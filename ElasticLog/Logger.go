@@ -19,6 +19,12 @@ type Logger struct {
 	isElastic 	bool
 }
 
+func NewElasticLogger(loggingIndex string)*Logger{
+	newLogger := &Logger{}
+	newLogger.Init(loggingIndex)
+	return newLogger
+}
+
 func (logger *Logger) Init(loggingIndex string){
 	logger.ctx = context.Background()
 	var err error

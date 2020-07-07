@@ -11,6 +11,17 @@ type CredList struct {
 	TotalCreds int
 }
 
+func NewCredListFromFile(filename string,crossConnect bool)*CredList{
+	newCredList := &CredList{}
+	err := newCredList.SetCredFile(filename)
+	if err != nil {
+		panic(err)
+	}
+	newCredList.SetCrossConnectStrategy(crossConnect)
+	return newCredList
+}
+
+
 func (credList *CredList) SetCredentials(usernames,passwords []string){
 	credList.usernames = usernames
 	credList.passwords = passwords
@@ -18,6 +29,11 @@ func (credList *CredList) SetCredentials(usernames,passwords []string){
 
 func (credList *CredList) SetCrossConnectStrategy(crossConnect bool){
 	credList.crossConnect = crossConnect
+	if crossConnect{
+		credList.TotalCreds = len(credList.usernames)*len(credList.passwords)
+	} else {
+		credList.TotalCreds = len(credList.usernames)
+	}
 }
 
 func (credList *CredList) GetCredentialChannel() chan Cred {
@@ -30,7 +46,6 @@ func (credList *CredList) GetCredentialChannel() chan Cred {
 }
 
 func (credList *CredList) crossConnectCreds() {
-	credList.TotalCreds = len(credList.usernames)*len(credList.passwords)
 	credList.Credentials = make(chan Cred,credList.TotalCreds)
 	for i := range credList.usernames{
 		for j := range credList.passwords{
@@ -40,7 +55,6 @@ func (credList *CredList) crossConnectCreds() {
 }
 
 func (credList *CredList) linearConnectCreds() {
-	credList.TotalCreds = len(credList.usernames)
 	credList.Credentials = make(chan Cred,credList.TotalCreds)
 	for i := range credList.usernames{
 		credList.Credentials <- Cred{credList.usernames[i],credList.passwords[i]}
