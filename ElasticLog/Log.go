@@ -18,6 +18,7 @@ type Progress struct {
 	Done     int
 	Total    int
 	Module   string
+	Work	 string
 	Priority int
 }
 
@@ -41,8 +42,8 @@ func NewLog(Type,Text,Module string)Log{
 	return newLog
 }
 
-func NewProgressLog(Module,Target string,Done,Remaining int)Progress{
-	return Progress{"PROGRESS",Target,Done,Remaining,Module,1}
+func NewProgressLog(Module,Target,Work string,Done,Remaining int)Progress{
+	return Progress{"PROGRESS",Target,Done,Remaining,Module,Work,1}
 }
 
 func LogToJson(log interface{}) (string,error) {

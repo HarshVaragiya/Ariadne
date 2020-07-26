@@ -3,6 +3,7 @@ package Hydra
 import (
 	"Ariadne/CredManager"
 	"Ariadne/ElasticLog"
+	"context"
 	"fmt"
 	"github.com/jlaffaye/ftp"
 	"strings"
@@ -30,21 +31,24 @@ func (ftpCrack *FTPCrack) getModuleInfo()string{
 	return ftpCrack.ModuleName
 }
 
-func (ftpCrack *FTPCrack) testCredential(target,username,password string,logger *ElasticLog.Logger) bool {
+func (ftpCrack *FTPCrack) testCredential(target,username,password string,logger *ElasticLog.Logger,ctx context.Context) bool {
 	timeoutError := fmt.Sprintf("dial tcp %s: i/o timeout",target)
 	for ;ftpCrack.isAlive;{
 		conn, err := ftp.Dial(target, ftp.DialWithTimeout(20*time.Second))
 		if err != nil{
 			if err.Error() == timeoutError {
 				logger.SendLog(ElasticLog.NewLog("DEBUG","Taking a long break due to i/o timeout",ftpCrack.ModuleName))
-				time.Sleep(time.Minute*2)
 			}
 			if strings.Contains(err.Error(),"421") {
 				logger.SendLog(ElasticLog.NewLog("ERROR",err.Error(),ftpCrack.ModuleName))
-				time.Sleep(time.Minute*2)
 			}
 			logger.SendLog(ElasticLog.NewLog("ERROR",err.Error(),ftpCrack.ModuleName))
-			continue
+			select{
+			case <- time.After(2*time.Minute):
+				continue
+			case <-ctx.Done():
+				return false
+			}
 		}
 		err = conn.Login(username, password)
 		if err == nil {

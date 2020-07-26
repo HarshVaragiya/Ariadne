@@ -28,12 +28,12 @@ type GobusterDir struct{
 	logger 			*ElasticLog.Logger
 }
 
-func NewBasicGoBusterDir(targetURL,extensions,wordlist string,threadCount int,parentWaitGroup *sync.WaitGroup,logger *ElasticLog.Logger)*GobusterDir{
+func NewBasicGoBusterDir(targetURL,extensions,wordlist string,threadCount int,ctx context.Context,parentWaitGroup *sync.WaitGroup,logger *ElasticLog.Logger)*GobusterDir{
 	dirbuster := GobusterDir{}
 	dirbuster.ModuleName = "GOBUSTER-DIR"
 	dirbuster.Done = false
 	dirbuster.parentWaitGroup = parentWaitGroup
-	dirbuster.context, dirbuster.cancel = context.WithTimeout(context.Background(), time.Duration(5)*time.Minute)
+	dirbuster.context, dirbuster.cancel = context.WithCancel(ctx)
 	dirbuster.targetBaseURL = targetURL
 	dirbuster.wordlist = wordlist
 	dirbuster.threadCount = threadCount
@@ -136,6 +136,6 @@ func (dirbuster *GobusterDir) logProgress(){
 	for ;!dirbuster.Done;{
 		time.Sleep(time.Second)
 		done,total := dirbuster.GetProgress()
-		dirbuster.logger.SendLog(ElasticLog.NewProgressLog(dirbuster.ModuleName,dirbuster.targetBaseURL,done,total))
+		dirbuster.logger.SendLog(ElasticLog.NewProgressLog(dirbuster.ModuleName,dirbuster.targetBaseURL,"DIR",done,total))
 	}
 }

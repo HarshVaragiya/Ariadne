@@ -18,6 +18,8 @@ type PortScan struct {
 	ModuleName		 string
 	
 	PortsFoundLog    PortScanLog
+	done			 int
+	total		     int
 }
 
 func NewPortScanner(target string,parentWaitGroup *sync.WaitGroup,logger *ElasticLog.Logger) *PortScan{
@@ -34,10 +36,10 @@ func NewPortScanner(target string,parentWaitGroup *sync.WaitGroup,logger *Elasti
 }
 
 func (portScan *PortScan) DefaultScan(){
-	portScan.InitialQuickPortScan()
+	portScan.total = 2
 	portScan.ParentWaitGroup.Add(1)
-	go portScan.TopThousandPortScan()
-	//TODO go AllPortScan()
+	go portScan.AllPortScan()
+	portScan.InitialQuickPortScan()
 }
 
 func (portScan *PortScan)SendPortScanLogUpdate(){

@@ -8,11 +8,12 @@ import (
 	"time"
 )
 
-func (portScan *PortScan) TopThousandPortScan(){
+func (portScan *PortScan) AllPortScan(){
 	defer portScan.ParentWaitGroup.Done()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer cancel()
-	scanner, err := nmap.NewScanner(nmap.WithTargets(portScan.target),nmap.WithContext(ctx))
+	scanner, err := nmap.NewScanner(nmap.WithTargets(portScan.target),nmap.WithContext(ctx),nmap.WithPorts("1-65535"),
+		nmap.WithMinRate(2000),nmap.WithMaxRetries(10),nmap.WithTimingTemplate(nmap.TimingAggressive))
 	if err != nil {
 		panic(err)
 	}
@@ -47,5 +48,7 @@ func (portScan *PortScan) TopThousandPortScan(){
 			}
 		}
 	}
+	portScan.done +=1
+	portScan.logger.SendLog(ElasticLog.NewProgressLog("NMAP",portScan.target,"ALL-PORT-SCAN",portScan.done,portScan.total))
 	portScan.SendPortScanLogUpdate()
 }

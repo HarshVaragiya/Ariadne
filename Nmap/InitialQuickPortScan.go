@@ -41,5 +41,7 @@ func (portScan *PortScan) InitialQuickPortScan(){
 
 		}
 	}
+	portScan.done +=1
+	portScan.logger.SendLog(ElasticLog.NewProgressLog("NMAP",portScan.target,"QUICK-PORT-SCAN",portScan.done,portScan.total))
 	portScan.SendPortScanLogUpdate()
 }
