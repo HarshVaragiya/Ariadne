@@ -35,6 +35,7 @@ func (logger *Logger) Init(loggingIndex string){
 	logger.Lock = &sync.Mutex{}
 	logger.index = 0x00
 	logger.LoggingIndex = loggingIndex
+	logger.isElastic = true
 }
 
 func (logger *Logger)SendLog(log interface{}){
@@ -42,10 +43,6 @@ func (logger *Logger)SendLog(log interface{}){
 	logger.Lock.Lock()
 	logger.index += 1
 	defer logger.Lock.Unlock()
-	if !logger.isElastic{
-		logger.localLogger(jsonLog)
-		return
-	}
 	if err == nil {
 		req := esapi.IndexRequest{
 			Index:      logger.LoggingIndex,
@@ -60,6 +57,10 @@ func (logger *Logger)SendLog(log interface{}){
 			logger.localLogger(jsonLog)
 		}
 		defer res.Body.Close()
+	}
+	if !logger.isElastic{
+		logger.localLogger(jsonLog)
+		return
 	}
 }
 

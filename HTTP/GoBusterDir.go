@@ -100,7 +100,8 @@ func(dirbuster *GobusterDir) updateEntities(){
 
 				dirbuster.logger.SendLog(dirbuster.ReportOutput)
 				dirbuster.logger.SendLog(ElasticLog.NewLog("IMP","Endpoint found : "+dirbuster.targetBaseURL+r.Entity,dirbuster.ModuleName))
-				fmt.Printf("[%s] Endpoint found : %s%s  [StatusCode %d] \n",dirbuster.ModuleName,dirbuster.targetBaseURL,r.Entity,r.StatusCode)
+				url := fmt.Sprintf("%s%s",dirbuster.targetBaseURL,r.Entity)
+				fmt.Printf("[%s] Endpoint found : %-35s  [%3d] \n",dirbuster.ModuleName,url,r.StatusCode)
 				// log output to elasticsearch
 			}
 		}
@@ -120,6 +121,10 @@ func (dirbuster *GobusterDir)Start() *DirSearchReport{
 	return dirbuster.ReportOutput
 }
 
+func (dirbuster *GobusterDir)GetReport()*DirSearchReport{
+	return dirbuster.ReportOutput
+}
+
 func (dirbuster *GobusterDir)run(){
 	defer dirbuster.parentWaitGroup.Done()
 	go dirbuster.updateEntities()
@@ -130,6 +135,8 @@ func (dirbuster *GobusterDir)run(){
 		fmt.Println(err) // should actually be panic - but YOLO
 	}
 	dirbuster.Done = true
+	done,total := dirbuster.GetProgress()
+	dirbuster.logger.SendLog(ElasticLog.NewProgressLog(dirbuster.ModuleName,dirbuster.targetBaseURL,"DIR",done,total))
 }
 
 func (dirbuster *GobusterDir) logProgress(){
