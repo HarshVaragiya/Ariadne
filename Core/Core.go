@@ -39,7 +39,8 @@ func NewAriadneTarget(target,loggingIndex string,ctx context.Context)*AriadneTar
 func (target *AriadneTarget) StartEnumerating(httpExtensions string){
 	portScanner := Nmap.NewPortScanner(target.rootTarget,&target.portScanWaitGroup,target.logger)
 	portScanner.DefaultScan()
-	target.portScanWaitGroup.Wait() // wait for the port scan to finish...
+
+	fmt.Println("Initial Port Scan Report")
 	fmt.Println(portScanner.DisplayHumanReadablePorts()) // print nmap scan report
 
 	// write a parser that parses portScanner.UniqueServices result and starts required modules
@@ -50,12 +51,26 @@ func (target *AriadneTarget) StartEnumerating(httpExtensions string){
 
 	// do other stuff
 
-	target.httpWaitGroup.Wait() // wait in the end .. continue before this
 
-	fmt.Println("\nHttp Report/s :")
-	for _ , job := range *target.httpJobs{
-		fmt.Println(job.GetReport().DisplayHumanReadableEndpoints())
-	}
+	target.rootWaitGroup.Add(2)
+
+	go func(){
+		defer target.rootWaitGroup.Done()
+		target.portScanWaitGroup.Wait() // wait for the port scan to finish...
+		fmt.Println("All Port Scan Finished.")
+		fmt.Println(portScanner.DisplayHumanReadablePorts()) // print nmap scan report
+	}()
+
+	go func(){
+		defer target.rootWaitGroup.Done()
+		target.httpWaitGroup.Wait()
+		fmt.Println("\nHttp Report/s :")
+		for _ , job := range *target.httpJobs{
+			fmt.Println(job.GetReport().DisplayHumanReadableEndpoints())
+		}
+	}()
+
+	target.rootWaitGroup.Wait()
 }
 
 func (target *AriadneTarget) HttpHandler(httpExtensions string, ports []uint16,httpWaitGroup *sync.WaitGroup){
