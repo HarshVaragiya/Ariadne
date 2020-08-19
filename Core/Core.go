@@ -64,8 +64,8 @@ func (target *AriadneTarget) StartEnumerating(httpExtensions string){
 	go func(){
 		defer target.rootWaitGroup.Done()
 		target.httpWaitGroup.Wait()
-		fmt.Println("\nHttp Report/s :")
 		for _ , job := range *target.httpJobs{
+			fmt.Println("\nHttp Report:")
 			fmt.Println(job.GetReport().DisplayHumanReadableEndpoints())
 		}
 	}()
@@ -74,6 +74,9 @@ func (target *AriadneTarget) StartEnumerating(httpExtensions string){
 }
 
 func (target *AriadneTarget) HttpHandler(httpExtensions string, ports []uint16,httpWaitGroup *sync.WaitGroup){
+	if len(ports) == 0 {
+		return
+	}
 	threads := MaxHttpThreads / len(ports)
 	var httpJobs []HTTP.GobusterDir
 	for _,port := range ports{
