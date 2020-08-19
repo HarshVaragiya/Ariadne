@@ -33,6 +33,8 @@ func (portScan *PortScan) AllPortScan(){
 				str := fmt.Sprintf("[%s] Found OPEN Port %d running service %s",portScan.ModuleName,port.ID,port.Service.String())
 				portScan.logger.SendLog(ElasticLog.NewLog("IMP",str,portScan.ModuleName))
 				fmt.Println(str)
+
+
 				portScan.DefaultScanPorts[port.Service.String()] = append(portScan.DefaultScanPorts[port.Service.String()],port.ID)
 				counter := 0x00
 				for _,p := range portScan.UniquePorts{

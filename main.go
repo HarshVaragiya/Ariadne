@@ -27,6 +27,6 @@ func main(){
 	defer cancel()
 
 	ariadne := Core.NewAriadneTarget(*target,*projectIndex,ctx)
-	ariadne.StartEnumerating()
+	ariadne.StartEnumerating(*httpExtensions)
 
 }
